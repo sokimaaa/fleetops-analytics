@@ -1,8 +1,9 @@
 package com.fleetops.analytics.domain.schema
 
+import org.apache.spark.internal.Logging
 import org.apache.spark.sql.types._
 
-object YellowTripSourceSchema {
+object YellowTripSourceSchema extends Logging {
   val structType: StructType = StructType(
     Seq(
       StructField("VendorID", IntegerType, nullable = true),
@@ -27,4 +28,54 @@ object YellowTripSourceSchema {
       StructField("cbd_congestion_fee", DoubleType, nullable = true)
     )
   )
+
+  def requireMatch(actualSchema: StructType): Unit = {
+    val mismatches = findMismatches(actualSchema)
+
+    if (mismatches.nonEmpty) {
+      logInfo(s"Raw dataset schema does not match YellowTripSourceSchema. Found ${mismatches.size} mismatch(es).")
+      mismatches.foreach(logError(_))
+      throw new IllegalArgumentException(
+        s"Raw dataset schema does not match YellowTripSourceSchema. Expected=$structType, actual=$actualSchema"
+      )
+    }
+  }
+
+  private def findMismatches(actualSchema: StructType): Seq[String] = {
+    val actualFields = actualSchema.fields
+    val expectedFields = structType.fields
+
+    val sizeMismatch = if (actualFields.length != expectedFields.length) {
+      Seq(
+        s"Schema field count mismatch: expected=${expectedFields.length}, actual=${actualFields.length}"
+      )
+    } else {
+      Seq.empty
+    }
+
+    val fieldMismatches = expectedFields
+      .map(Option(_))
+      .zipAll(actualFields.map(Option(_)), None, None)
+      .flatMap {
+        case (Some(expectedField), Some(actualField)) if expectedField.name == actualField.name && actualField.dataType == expectedField.dataType =>
+          Seq.empty
+        case (Some(expectedField), Some(actualField)) =>
+          Seq(
+            s"Field mismatch: expected=${formatField(expectedField)}, actual=${formatField(actualField)}"
+          )
+        case (Some(expectedField), None) =>
+          Seq(
+            s"Missing field: expected=${formatField(expectedField)}"
+          )
+        case (None, Some(actualField)) =>
+          Seq(
+            s"Extra field: actual=${formatField(actualField)}, expected=None"
+          )
+      }
+
+    sizeMismatch ++ fieldMismatches
+  }
+
+  private def formatField(field: StructField): String =
+    s"(name=${field.name}, type=${field.dataType.simpleString}, nullable=${field.nullable})"
 }
