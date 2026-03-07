@@ -1,3 +1,5 @@
+package com.fleetops.analytics
+
 import org.scalatest.funsuite.AnyFunSuite
 
 class MainSpec extends AnyFunSuite {
