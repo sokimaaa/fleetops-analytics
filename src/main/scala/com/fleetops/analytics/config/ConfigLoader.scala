@@ -21,7 +21,8 @@ object FleetOpsConfigLoader extends ConfigLoader[AppConfig] {
     AppConfig(
       storage = StorageConfigLoader.load(fleetopsConfig),
       dataset = DatasetConfigLoader.load(fleetopsConfig),
-      spark = SparkConfigLoader.load(fleetopsConfig)
+      spark = SparkConfigLoader.load(fleetopsConfig),
+      anomaly = AnomalyConfigLoader.load(fleetopsConfig)
     )
   }
 }
@@ -64,5 +65,20 @@ object SparkConfigLoader extends ConfigLoader[SparkConfig] {
       master = config.getString("master"),
       shufflePartitions = config.getInt("shufflePartitions"),
       logLevel = if (config.hasPath("logLevel")) config.getString("logLevel") else "WARN"
+    )
+}
+
+object AnomalyConfigLoader extends ConfigLoader[AnomalyConfig] {
+  private val AnomalyPath = "anomaly"
+
+  override def load(config: Config): AnomalyConfig = loadAnomalyConfig(config.getConfig(AnomalyPath))
+
+  private def loadAnomalyConfig(config: Config): AnomalyConfig =
+    AnomalyConfig(
+      veryLongDurationSeconds = config.getInt("veryLongDurationSeconds"),
+      veryHighFareAmount = config.getDouble("veryHighFareAmount"),
+      veryHighTipAmount = config.getDouble("veryHighTipAmount"),
+      lowDistanceKmThreshold = config.getDouble("lowDistanceKmThreshold"),
+      lowDistanceHighFareAmount = config.getDouble("lowDistanceHighFareAmount")
     )
 }
