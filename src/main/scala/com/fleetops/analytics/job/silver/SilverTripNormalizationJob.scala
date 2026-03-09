@@ -1,9 +1,10 @@
 package com.fleetops.analytics.job.silver
 
-import com.fleetops.analytics.common.{JobRunner, SparkJob}
+import com.fleetops.analytics.common.ops.DataFrameOps._
+import com.fleetops.analytics.common.ops.WriterOps.ParquetWriterOps
+import com.fleetops.analytics.common.{JobRunner, ProcessingWindow, SparkJob}
 import com.fleetops.analytics.config.AppConfig
-import com.fleetops.analytics.transformation.ops.DataFrameOps._
-import org.apache.spark.sql.{SaveMode, SparkSession}
+import org.apache.spark.sql.SparkSession
 
 import scala.language.implicitConversions
 
@@ -15,13 +16,12 @@ object SilverTripNormalizationJob extends SparkJob {
     timed("SilverTripNormalizationJob normalization") {
       val inputPath = s"${appConfig.storage.bronze}/trips"
       val outputPath = s"${appConfig.storage.silver}/trips"
+      val processingWindow = ProcessingWindow.from(appConfig.dataset)
 
       spark.read.parquet(inputPath)
+        .forProcessingWindow(processingWindow)
         .normalize
-        .write
-        .mode(SaveMode.Overwrite)
-        .partitionBy("year", "month")
-        .parquet(outputPath)
+        .writeParquet(outputPath, Seq("year", "month"))
     }
   }
 }

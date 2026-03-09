@@ -1,10 +1,11 @@
 package com.fleetops.analytics.job.gold
 
-import com.fleetops.analytics.common.{JobRunner, SparkJob}
+import com.fleetops.analytics.common.ops.DataFrameOps._
+import com.fleetops.analytics.common.ops.WriterOps.ParquetWriterOps
+import com.fleetops.analytics.common.{JobRunner, ProcessingWindow, SparkJob}
 import com.fleetops.analytics.config.AppConfig
-import com.fleetops.analytics.transformation.ops.DataFrameOps._
+import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.{col, desc}
-import org.apache.spark.sql.{SaveMode, SparkSession}
 
 object HourlyHotspotMetricsJob extends SparkJob {
 
@@ -14,8 +15,10 @@ object HourlyHotspotMetricsJob extends SparkJob {
     timed("HourlyHotspotMetricsJob aggregation") {
       val inputPath = s"${appConfig.storage.silver}/trips_enriched"
       val outputPath = s"${appConfig.storage.gold}/hourly_hotspots"
+      val processingWindow = ProcessingWindow.from(appConfig.dataset)
 
       spark.read.parquet(inputPath)
+        .forProcessingWindow(processingWindow)
         .select(
           col("pickupDatetime"),
           col("pickupLocationId"),
@@ -31,10 +34,7 @@ object HourlyHotspotMetricsJob extends SparkJob {
           desc("tripsCount"),
           col("pickupLocationId").asc
         )
-        .write
-        .mode(SaveMode.Overwrite)
-        .partitionBy("year", "month")
-        .parquet(outputPath)
+        .writeParquet(outputPath, Seq("year", "month"))
     }
   }
 }

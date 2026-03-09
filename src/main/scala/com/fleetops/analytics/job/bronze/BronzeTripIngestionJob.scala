@@ -1,12 +1,13 @@
 package com.fleetops.analytics.job.bronze
 
-import com.fleetops.analytics.common.{JobRunner, SparkJob}
+import com.fleetops.analytics.common.io.PartitionedParquetWriter
+import com.fleetops.analytics.common.ops.DataFrameOps._
+import com.fleetops.analytics.common.{JobRunner, ProcessingWindow, SparkJob}
 import com.fleetops.analytics.config.AppConfig
 import com.fleetops.analytics.domain.args.BronzeJobArgs
 import com.fleetops.analytics.domain.schema.YellowTripSourceSchema
-import com.fleetops.analytics.transformation.ops.DataFrameOps._
+import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.{SaveMode, SparkSession}
 
 object BronzeTripIngestionJob extends SparkJob {
 
@@ -16,6 +17,7 @@ object BronzeTripIngestionJob extends SparkJob {
     timed("BronzeTripIngestionJob ingestion") {
       val jobArgs = BronzeJobArgs(args)
       val outputPath = s"${appConfig.storage.bronze}/trips"
+      val processingWindow = ProcessingWindow(jobArgs.year, jobArgs.month)
 
       val rawDf = spark.read.parquet(jobArgs.inputPath)
       YellowTripSourceSchema.requireMatch(rawDf.schema)
@@ -32,6 +34,7 @@ object BronzeTripIngestionJob extends SparkJob {
           "month",
           coalesce(month(col("tpep_pickup_datetime")), lit(jobArgs.month))
         )
+        .forProcessingWindow(processingWindow)
 
       val metrics = preparedDf.agg(
         count(lit(1)).as("total_records"),
@@ -51,10 +54,7 @@ object BronzeTripIngestionJob extends SparkJob {
         f"Bronze validation summary: total_records=$totalRecords%,d, invalid_records_count=$invalidRecords%,d, invalid_record_percentage=$invalidRecordPercentage%.3f%%"
       )
 
-      preparedDf
-        .write.mode(SaveMode.Overwrite)
-        .partitionBy("year", "month")
-        .parquet(outputPath)
+      PartitionedParquetWriter.write(preparedDf)(outputPath, Seq("year", "month"))
     }
   }
 }

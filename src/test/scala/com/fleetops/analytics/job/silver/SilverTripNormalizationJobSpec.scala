@@ -1,11 +1,11 @@
 package com.fleetops.analytics.job.silver
 
+import com.fleetops.analytics.common.ops.DataFrameOps._
 import org.apache.spark.sql.SparkSession
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funsuite.AnyFunSuite
 
 import java.sql.Timestamp
-import com.fleetops.analytics.transformation.ops.DataFrameOps._
 
 class SilverTripNormalizationJobSpec extends AnyFunSuite with BeforeAndAfterAll {
 

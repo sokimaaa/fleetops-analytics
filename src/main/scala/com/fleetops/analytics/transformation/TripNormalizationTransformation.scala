@@ -1,6 +1,6 @@
 package com.fleetops.analytics.transformation
 
-import com.fleetops.analytics.transformation.ops.DataFrameOps._
+import com.fleetops.analytics.common.ops.DataFrameOps._
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.{col, timestamp_diff}
 import org.apache.spark.sql.types.DataTypes

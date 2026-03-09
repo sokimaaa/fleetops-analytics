@@ -64,7 +64,8 @@ object SparkConfigLoader extends ConfigLoader[SparkConfig] {
       appName = config.getString("appName"),
       master = config.getString("master"),
       shufflePartitions = config.getInt("shufflePartitions"),
-      logLevel = if (config.hasPath("logLevel")) config.getString("logLevel") else "WARN"
+      logLevel = if (config.hasPath("logLevel")) config.getString("logLevel") else "WARN",
+      partitionOverwriteMode = config.getString("partitionOverwriteMode")
     )
 }
 

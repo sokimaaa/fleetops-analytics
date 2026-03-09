@@ -1,7 +1,7 @@
 package com.fleetops.analytics.job.gold
 
+import com.fleetops.analytics.common.ops.DataFrameOps._
 import com.fleetops.analytics.domain.schema.DailyZoneMetricsSchema
-import com.fleetops.analytics.transformation.ops.DataFrameOps._
 import org.apache.spark.sql.SparkSession
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funsuite.AnyFunSuite

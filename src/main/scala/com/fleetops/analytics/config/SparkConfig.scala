@@ -4,5 +4,6 @@ final case class SparkConfig(
   appName: String,
   master: String,
   shufflePartitions: Int,
-  logLevel: String
+  logLevel: String,
+  partitionOverwriteMode: String
 )

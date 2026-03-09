@@ -11,6 +11,7 @@ object SparkSessionFactory {
       .appName(sparkConfig.appName)
       .master(sparkConfig.master)
       .config("spark.sql.shuffle.partitions", sparkConfig.shufflePartitions.toString)
+      .config("spark.sql.sources.partitionOverwriteMode", sparkConfig.partitionOverwriteMode)
       .getOrCreate()
 
     spark.sparkContext.setLogLevel(sparkConfig.logLevel)
