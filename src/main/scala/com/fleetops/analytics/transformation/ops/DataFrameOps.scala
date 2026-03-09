@@ -1,7 +1,7 @@
 package com.fleetops.analytics.transformation.ops
 
 import com.fleetops.analytics.domain.schema.YellowTripSourceValidator
-import com.fleetops.analytics.transformation.TripNormalizationTransformation
+import com.fleetops.analytics.transformation.{TaxiZoneEnricherTransformation, TripNormalizationTransformation}
 import org.apache.spark.sql.DataFrame
 
 object DataFrameOps {
@@ -14,5 +14,10 @@ object DataFrameOps {
 
   implicit class TripNormalizationOps(private val value: DataFrame) extends AnyVal {
     def normalize: DataFrame = TripNormalizationTransformation.normalize(value)
+  }
+
+  implicit class TripEnricherOps(private val value: DataFrame) extends AnyVal {
+    def withTaxiZones(zoneLookup: DataFrame): DataFrame =
+      TaxiZoneEnricherTransformation.enrichWithZones(value, zoneLookup)
   }
 }
