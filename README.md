@@ -23,9 +23,9 @@ Raw files should be placed under `data/raw/`.
 
 The repository follows a medallion-style pipeline design:
 
-- `jobs/bronze/`: ingestion and raw normalization jobs
-- `jobs/silver/`: cleaned and conformed data transformations
-- `jobs/gold/`: business-level aggregates and analytics-ready marts
+- `job/bronze/`: ingestion and raw normalization jobs
+- `job/silver/`: cleaned and conformed data transformations
+- `job/gold/`: business-level aggregates and analytics-ready marts
 
 Storage layers:
 
