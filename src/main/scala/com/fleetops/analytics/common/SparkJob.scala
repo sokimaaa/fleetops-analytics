@@ -5,5 +5,5 @@ import org.apache.spark.sql.SparkSession
 
 trait SparkJob extends TimedLogging {
 
-  def run(spark: SparkSession, config: AppConfig, args: Array[String]): Unit
+  def run(args: Array[String])(implicit ss: SparkSession, config: AppConfig): Unit
 }

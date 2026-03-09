@@ -47,8 +47,8 @@ object YellowTripSourceValidator {
     )
   }
 
-  def invalidRecords(df: DataFrame): DataFrame = {
+  def validRecords(df: DataFrame): DataFrame = {
     val validated = if (df.columns.contains(ValidationErrorsColumn)) df else withValidationErrors(df)
-    validated.filter(size(col(ValidationErrorsColumn)) > 0)
+    validated.filter(size(col(ValidationErrorsColumn)) === 0)
   }
 }

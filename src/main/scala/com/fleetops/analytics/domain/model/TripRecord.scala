@@ -13,5 +13,6 @@ case class TripRecord(
   paymentType: Option[Long],
   fareAmount: Option[Double],
   tipAmount: Option[Double],
-  totalAmount: Option[Double]
+  totalAmount: Option[Double],
+  tripDurationSeconds: Option[Long]
 )

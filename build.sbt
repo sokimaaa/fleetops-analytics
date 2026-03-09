@@ -7,6 +7,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "FleetOps Analytics",
     organization := "com.fleetops",
+    Test / parallelExecution := false,
 
     libraryDependencies ++= Seq(
       "org.apache.spark" %% "spark-core" % sparkVersion,

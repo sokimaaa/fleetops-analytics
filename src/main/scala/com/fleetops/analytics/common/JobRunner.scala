@@ -1,6 +1,6 @@
 package com.fleetops.analytics.common
 
-import com.fleetops.analytics.config.ConfigLoader
+import com.fleetops.analytics.config.{AppConfig, ConfigLoader}
 import org.apache.spark.sql.SparkSession
 
 object JobRunner extends TimedLogging {
@@ -11,9 +11,11 @@ object JobRunner extends TimedLogging {
       logInfo(s"Job started: $jobName")
 
       try {
-        val appConfig = ConfigLoader.load()
+        implicit val appConfig: AppConfig = ConfigLoader.load()
         spark = Some(SparkSessionFactory.create(appConfig))
-        spark.foreach(s => job.run(s, appConfig, args))
+        spark.foreach { implicit ss =>
+          job.run(args)
+        }
       } finally {
         logInfo(s"Stopping Spark session for job: $jobName")
         spark.foreach(_.stop())
