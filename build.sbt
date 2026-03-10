@@ -8,6 +8,8 @@ lazy val root = (project in file("."))
     name := "FleetOps Analytics",
     organization := "com.fleetops",
     Test / parallelExecution := false,
+    Compile / run / fork := true,
+    Compile / runMain / fork := true,
 
     libraryDependencies ++= Seq(
       "org.apache.spark" %% "spark-core" % sparkVersion,

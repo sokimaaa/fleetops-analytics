@@ -272,6 +272,48 @@ Current metrics include:
 
 All jobs are standalone Spark entrypoints under `src/main/scala/com/fleetops/analytics/job`.
 
+### Local pipeline orchestration
+
+Use the local Python orchestrator to run the full pipeline in the required dependency order:
+
+```bash
+./scripts/run_pipeline_local.py --year 2025 --month 01
+```
+
+or in debug mode 
+
+```bash
+./scripts/run_pipeline_local.py --year 2025 --month 01 --debug
+```
+
+Behavior:
+
+- runs bronze, silver, and gold jobs sequentially
+- stops immediately when any job exits with a non-zero status
+- logs each job start, command, and completion timestamp clearly
+- overrides `fleetops.dataset.year` and `fleetops.dataset.month` at runtime for all non-bronze jobs
+
+By default the bronze input path is resolved as:
+
+```text
+data/raw/<year>/yellow_tripdata_<year>-<month>.parquet
+```
+
+Example:
+
+```text
+data/raw/2025/yellow_tripdata_2025-01.parquet
+```
+
+If the raw parquet file lives elsewhere, pass it explicitly:
+
+```bash
+./scripts/run_pipeline_local.py \
+  --year 2025 \
+  --month 01 \
+  --input-path /absolute/path/to/yellow_tripdata_2025-01.parquet
+```
+
 ### Recommended local execution order
 
 ```bash
