@@ -339,3 +339,30 @@ Commands:
 sbt compile
 sbt test
 ```
+
+## Airflow orchestration
+
+An Airflow DAG is available at `scripts/fleetops_pipeline_dag.py`.
+
+What it does:
+
+- creates one Airflow task for each current Spark job
+- preserves the existing dependency order from the local orchestrator
+- allows the three gold aggregations to run in parallel after silver enrichment
+- finishes with the data quality report after anomaly detection completes
+
+Default DAG params:
+
+- `year` and `month` come from the DAG run's logical month
+- `input_path=null`, which falls back to `data/raw/<year>/yellow_tripdata_<year>-<month>.parquet`
+- `sbt_bin=sbt`
+
+Example manual trigger payload:
+
+```json
+{
+  "year": 2025,
+  "month": 1,
+  "input_path": "~/fleetops-analytics/data/raw/2025/yellow_tripdata_2025-01.parquet"
+}
+```
